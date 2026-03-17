@@ -276,15 +276,17 @@ function PriceChart({ selectedTicker }: { selectedTicker: string }) {
     signal: signals[i]?.signal,
   }));
 
+  const gradientId = `priceGrad-${selectedTicker}`;
+
   if (chartData.length === 0) {
     return <p className="text-sm text-muted-foreground py-8 text-center">No price data available for {selectedTicker}.</p>;
   }
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
+    <ResponsiveContainer key={selectedTicker} width="100%" height={320}>
       <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
         <defs>
-          <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="hsl(210, 76%, 50%)" stopOpacity={0.3} />
             <stop offset="95%" stopColor="hsl(210, 76%, 50%)" stopOpacity={0} />
           </linearGradient>
@@ -325,7 +327,7 @@ function PriceChart({ selectedTicker }: { selectedTicker: string }) {
           dataKey="price"
           stroke="hsl(210, 76%, 50%)"
           strokeWidth={2}
-          fill="url(#priceGradient)"
+          fill={`url(#${gradientId})`}
           dot={false}
         />
         <Line
@@ -351,7 +353,7 @@ function RsiChart({ selectedTicker }: { selectedTicker: string }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <ResponsiveContainer key={selectedTicker} width="100%" height={200}>
       <LineChart data={data} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
         <XAxis
