@@ -4,6 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   TrendingUp,
   TrendingDown,
   ArrowUpRight,
@@ -35,8 +42,8 @@ import {
 } from "recharts";
 import {
   FUNDS,
-  VOO_HISTORY,
-  VOO_RSI,
+  FUND_HISTORIES,
+  FUND_RSI,
   calculateDipSignals,
   getCurrentSignal,
   type FundInfo,
@@ -74,6 +81,33 @@ function formatExpenseRatio(er: number) {
 
 function annualCostPer10k(er: number) {
   return formatPrice((er / 100) * 10000);
+}
+
+// Fund Selector Dropdown
+function FundSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (ticker: string) => void;
+}) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-[200px] h-8 text-xs" data-testid="fund-selector">
+        <SelectValue placeholder="Select fund" />
+      </SelectTrigger>
+      <SelectContent>
+        {FUNDS.map((f) => (
+          <SelectItem key={f.ticker} value={f.ticker} className="text-xs">
+            <span className="font-medium">{f.ticker}</span>
+            <span className="text-muted-foreground ml-1.5">
+              {f.type === "ETF" ? "ETF" : "MF"} · {formatExpenseRatio(f.expenseRatio)}
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 }
 
 // KPI Card Component
@@ -231,15 +265,20 @@ function ExpenseChart({ funds }: { funds: FundInfo[] }) {
   );
 }
 
-// Price Chart with SMA
-function PriceChart() {
-  const signals = calculateDipSignals(VOO_HISTORY);
-  const chartData = VOO_HISTORY.slice(19).map((d, i) => ({
+// Price Chart with SMA - now accepts selectedTicker
+function PriceChart({ selectedTicker }: { selectedTicker: string }) {
+  const priceHistory = FUND_HISTORIES[selectedTicker] ?? [];
+  const signals = calculateDipSignals(priceHistory);
+  const chartData = priceHistory.slice(19).map((d, i) => ({
     date: d.date,
     price: d.close,
     sma20: signals[i]?.sma20 ?? d.close,
     signal: signals[i]?.signal,
   }));
+
+  if (chartData.length === 0) {
+    return <p className="text-sm text-muted-foreground py-8 text-center">No price data available for {selectedTicker}.</p>;
+  }
 
   return (
     <ResponsiveContainer width="100%" height={320}>
@@ -278,7 +317,7 @@ function PriceChart() {
           }}
           formatter={(value: number, name: string) => [
             `$${value.toFixed(2)}`,
-            name === "price" ? "VOO Price" : "20-Day SMA",
+            name === "price" ? `${selectedTicker} Price` : "20-Day SMA",
           ]}
         />
         <Area
@@ -302,9 +341,14 @@ function PriceChart() {
   );
 }
 
-// RSI Chart
-function RsiChart() {
-  const data = [...VOO_RSI].reverse();
+// RSI Chart - now accepts selectedTicker
+function RsiChart({ selectedTicker }: { selectedTicker: string }) {
+  const rsiData = FUND_RSI[selectedTicker] ?? [];
+  const data = [...rsiData].reverse();
+
+  if (data.length === 0) {
+    return <p className="text-sm text-muted-foreground py-8 text-center">No RSI data available for {selectedTicker}.</p>;
+  }
 
   return (
     <ResponsiveContainer width="100%" height={200}>
@@ -347,13 +391,14 @@ function RsiChart() {
   );
 }
 
-// Dip Signal Timeline
-function DipTimeline() {
-  const signals = calculateDipSignals(VOO_HISTORY);
+// Dip Signal Timeline - now accepts selectedTicker
+function DipTimeline({ selectedTicker }: { selectedTicker: string }) {
+  const priceHistory = FUND_HISTORIES[selectedTicker] ?? [];
+  const signals = calculateDipSignals(priceHistory);
   const buySignals = signals.filter((s) => s.signal === "strong_buy" || s.signal === "buy");
 
   if (buySignals.length === 0) {
-    return <p className="text-sm text-muted-foreground">No dip signals detected in the past year.</p>;
+    return <p className="text-sm text-muted-foreground">No dip signals detected in the past year for {selectedTicker}.</p>;
   }
 
   return (
@@ -437,6 +482,7 @@ export default function Dashboard() {
   const { theme, toggleTheme } = useTheme();
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"expenseRatio" | "price" | "changePercent">("expenseRatio");
+  const [selectedTicker, setSelectedTicker] = useState<string>("VOO");
 
   const sortedFunds = useMemo(() => {
     let filtered = FUNDS;
@@ -450,10 +496,11 @@ export default function Dashboard() {
     });
   }, [categoryFilter, sortBy]);
 
-  const currentSignal = getCurrentSignal(VOO_RSI, VOO_HISTORY);
+  const currentSignal = getCurrentSignal(selectedTicker);
   const avgExpenseRatio = FUNDS.reduce((s, f) => s + f.expenseRatio, 0) / FUNDS.length;
   const cheapestFund = FUNDS.reduce((a, b) => (a.expenseRatio < b.expenseRatio ? a : b));
   const bestPerformer = FUNDS.reduce((a, b) => (a.changePercent > b.changePercent ? a : b));
+  const selectedFund = FUNDS.find((f) => f.ticker === selectedTicker);
 
   return (
     <div className="min-h-screen bg-background">
@@ -500,11 +547,14 @@ export default function Dashboard() {
                   <ShieldCheck className={`h-6 w-6 ${SIGNAL_COLORS[currentSignal.signal].text}`} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-semibold">Market Signal</span>
                     <SignalBadge signal={currentSignal.signal} />
+                    <span className="text-xs text-muted-foreground font-medium">for {selectedTicker}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">S&P 500 / Total Market Assessment</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {selectedFund ? selectedFund.name : "Select a fund below"}
+                  </p>
                 </div>
               </div>
               <div className="flex-1 sm:text-right">
@@ -564,10 +614,13 @@ export default function Dashboard() {
           <TabsContent value="price">
             <Card className="border-border/50">
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-sm font-semibold">VOO Price History</CardTitle>
-                    <p className="text-xs text-muted-foreground">1-year daily close with 20-day SMA</p>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-3">
+                    <FundSelector value={selectedTicker} onChange={setSelectedTicker} />
+                    <div>
+                      <CardTitle className="text-sm font-semibold">{selectedTicker} Price History</CardTitle>
+                      <p className="text-xs text-muted-foreground">1-year daily close with 20-day SMA</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5">
@@ -582,7 +635,7 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <PriceChart />
+                <PriceChart selectedTicker={selectedTicker} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -590,12 +643,15 @@ export default function Dashboard() {
           <TabsContent value="rsi">
             <Card className="border-border/50">
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-sm font-semibold">RSI (14-Day) — VOO</CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      Below 30 = oversold (buy signal) / Above 70 = overbought (caution)
-                    </p>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-3">
+                    <FundSelector value={selectedTicker} onChange={setSelectedTicker} />
+                    <div>
+                      <CardTitle className="text-sm font-semibold">RSI (14-Day) — {selectedTicker}</CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        Below 30 = oversold (buy signal) / Above 70 = overbought (caution)
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5">
@@ -610,7 +666,7 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <RsiChart />
+                <RsiChart selectedTicker={selectedTicker} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -645,13 +701,18 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <Card className="border-border/50">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold">Buy-the-Dip Signals</CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  Recent dip opportunities based on SMA deviation and drawdown analysis
-                </p>
+                <div className="flex items-center gap-3">
+                  <FundSelector value={selectedTicker} onChange={setSelectedTicker} />
+                  <div>
+                    <CardTitle className="text-sm font-semibold">Buy-the-Dip Signals</CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Recent dip opportunities for {selectedTicker} based on SMA deviation and drawdown
+                    </p>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <DipTimeline />
+                <DipTimeline selectedTicker={selectedTicker} />
               </CardContent>
             </Card>
           </div>

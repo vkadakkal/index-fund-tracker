@@ -1,4 +1,9 @@
 // Static fund metadata with live data fetched from API
+import { FUND_HISTORIES, FUND_RSI, type PricePoint, type RsiPoint } from "./fundHistories";
+
+export type { PricePoint, RsiPoint };
+export { FUND_HISTORIES, FUND_RSI };
+
 export interface FundInfo {
   ticker: string;
   name: string;
@@ -250,183 +255,8 @@ export const FUNDS: FundInfo[] = [
   },
 ];
 
-// Historical price data for VOO (1 year daily) - used for charts
-// Sampled key data points from the full 251-day dataset
-export const VOO_HISTORY = [
-  { date: "2025-03-17", close: 521.41 },
-  { date: "2025-03-24", close: 527.96 },
-  { date: "2025-03-31", close: 513.98 },
-  { date: "2025-04-02", close: 515.82 },
-  { date: "2025-04-04", close: 477.97 },
-  { date: "2025-04-07", close: 472.01 },
-  { date: "2025-04-08", close: 464.06 },
-  { date: "2025-04-09", close: 503.46 },
-  { date: "2025-04-10", close: 490.60 },
-  { date: "2025-04-14", close: 497.41 },
-  { date: "2025-04-21", close: 488.32 },
-  { date: "2025-04-22", close: 509.29 },
-  { date: "2025-04-25", close: 517.91 },
-  { date: "2025-04-28", close: 518.68 },
-  { date: "2025-05-05", close: 526.02 },
-  { date: "2025-05-12", close: 549.71 },
-  { date: "2025-05-16", close: 547.94 },
-  { date: "2025-05-19", close: 547.91 },
-  { date: "2025-05-23", close: 538.50 },
-  { date: "2025-05-27", close: 548.73 },
-  { date: "2025-05-30", close: 543.83 },
-  { date: "2025-06-06", close: 556.13 },
-  { date: "2025-06-13", close: 557.18 },
-  { date: "2025-06-17", close: 563.42 },
-  { date: "2025-06-20", close: 559.72 },
-  { date: "2025-06-25", close: 567.38 },
-  { date: "2025-06-30", close: 563.20 },
-  { date: "2025-07-03", close: 570.13 },
-  { date: "2025-07-07", close: 568.89 },
-  { date: "2025-07-11", close: 577.02 },
-  { date: "2025-07-14", close: 579.52 },
-  { date: "2025-07-18", close: 579.23 },
-  { date: "2025-07-21", close: 578.10 },
-  { date: "2025-07-25", close: 579.56 },
-  { date: "2025-07-28", close: 582.11 },
-  { date: "2025-08-01", close: 577.35 },
-  { date: "2025-08-04", close: 580.44 },
-  { date: "2025-08-08", close: 582.27 },
-  { date: "2025-08-11", close: 582.78 },
-  { date: "2025-08-15", close: 590.13 },
-  { date: "2025-08-18", close: 592.82 },
-  { date: "2025-08-22", close: 589.46 },
-  { date: "2025-08-25", close: 591.56 },
-  { date: "2025-08-29", close: 594.20 },
-  { date: "2025-09-02", close: 591.55 },
-  { date: "2025-09-05", close: 585.06 },
-  { date: "2025-09-08", close: 590.29 },
-  { date: "2025-09-12", close: 604.44 },
-  { date: "2025-09-15", close: 607.59 },
-  { date: "2025-09-19", close: 606.21 },
-  { date: "2025-09-22", close: 607.84 },
-  { date: "2025-09-26", close: 612.67 },
-  { date: "2025-09-30", close: 603.83 },
-  { date: "2025-10-03", close: 596.74 },
-  { date: "2025-10-06", close: 599.53 },
-  { date: "2025-10-10", close: 612.72 },
-  { date: "2025-10-13", close: 613.95 },
-  { date: "2025-10-17", close: 620.96 },
-  { date: "2025-10-20", close: 619.18 },
-  { date: "2025-10-24", close: 623.12 },
-  { date: "2025-10-27", close: 622.99 },
-  { date: "2025-10-31", close: 615.23 },
-  { date: "2025-11-03", close: 620.74 },
-  { date: "2025-11-07", close: 623.13 },
-  { date: "2025-11-10", close: 625.89 },
-  { date: "2025-11-14", close: 617.56 },
-  { date: "2025-11-17", close: 618.26 },
-  { date: "2025-11-21", close: 618.96 },
-  { date: "2025-11-25", close: 625.42 },
-  { date: "2025-11-28", close: 623.55 },
-  { date: "2025-12-01", close: 626.98 },
-  { date: "2025-12-05", close: 633.80 },
-  { date: "2025-12-08", close: 635.85 },
-  { date: "2025-12-12", close: 634.31 },
-  { date: "2025-12-15", close: 626.53 },
-  { date: "2025-12-19", close: 605.21 },
-  { date: "2025-12-22", close: 617.44 },
-  { date: "2025-12-26", close: 622.36 },
-  { date: "2025-12-29", close: 620.38 },
-  { date: "2025-12-31", close: 617.65 },
-  { date: "2026-01-02", close: 617.38 },
-  { date: "2026-01-06", close: 621.86 },
-  { date: "2026-01-08", close: 612.98 },
-  { date: "2026-01-10", close: 615.87 },
-  { date: "2026-01-13", close: 609.57 },
-  { date: "2026-01-14", close: 616.84 },
-  { date: "2026-01-16", close: 624.78 },
-  { date: "2026-01-17", close: 627.27 },
-  { date: "2026-01-21", close: 631.30 },
-  { date: "2026-01-23", close: 634.15 },
-  { date: "2026-01-24", close: 641.81 },
-  { date: "2026-01-27", close: 623.37 },
-  { date: "2026-01-29", close: 630.77 },
-  { date: "2026-01-31", close: 626.06 },
-  { date: "2026-02-03", close: 616.87 },
-  { date: "2026-02-05", close: 625.76 },
-  { date: "2026-02-07", close: 621.90 },
-  { date: "2026-02-10", close: 618.55 },
-  { date: "2026-02-12", close: 623.30 },
-  { date: "2026-02-14", close: 629.50 },
-  { date: "2026-02-19", close: 632.77 },
-  { date: "2026-02-21", close: 628.15 },
-  { date: "2026-02-24", close: 623.48 },
-  { date: "2026-02-25", close: 619.76 },
-  { date: "2026-02-27", close: 610.70 },
-  { date: "2026-02-28", close: 613.49 },
-  { date: "2026-03-03", close: 610.22 },
-  { date: "2026-03-04", close: 603.63 },
-  { date: "2026-03-05", close: 615.14 },
-  { date: "2026-03-06", close: 610.30 },
-  { date: "2026-03-07", close: 616.22 },
-  { date: "2026-03-10", close: 608.67 },
-  { date: "2026-03-11", close: 612.94 },
-  { date: "2026-03-12", close: 612.50 },
-  { date: "2026-03-13", close: 609.09 },
-  { date: "2026-03-16", close: 615.19 },
-];
-
-// RSI data (last 50 data points) from Massive API
-export const VOO_RSI = [
-  { date: "2026-03-16", rsi: 39.51 },
-  { date: "2026-03-13", rsi: 40.40 },
-  { date: "2026-03-12", rsi: 33.49 },
-  { date: "2026-03-11", rsi: 35.63 },
-  { date: "2026-03-10", rsi: 42.75 },
-  { date: "2026-03-07", rsi: 43.33 },
-  { date: "2026-03-06", rsi: 44.20 },
-  { date: "2026-03-05", rsi: 38.47 },
-  { date: "2026-03-04", rsi: 45.20 },
-  { date: "2026-03-03", rsi: 48.35 },
-  { date: "2026-02-28", rsi: 43.50 },
-  { date: "2026-02-27", rsi: 48.81 },
-  { date: "2026-02-26", rsi: 48.55 },
-  { date: "2026-02-25", rsi: 51.39 },
-  { date: "2026-02-24", rsi: 55.07 },
-  { date: "2026-02-21", rsi: 50.15 },
-  { date: "2026-02-20", rsi: 45.36 },
-  { date: "2026-02-19", rsi: 51.81 },
-  { date: "2026-02-18", rsi: 46.88 },
-  { date: "2026-02-14", rsi: 48.54 },
-  { date: "2026-02-13", rsi: 45.01 },
-  { date: "2026-02-12", rsi: 43.76 },
-  { date: "2026-02-11", rsi: 43.33 },
-  { date: "2026-02-10", rsi: 52.63 },
-  { date: "2026-02-07", rsi: 52.73 },
-  { date: "2026-02-06", rsi: 54.57 },
-  { date: "2026-02-05", rsi: 51.97 },
-  { date: "2026-02-04", rsi: 38.78 },
-  { date: "2026-02-03", rsi: 46.39 },
-  { date: "2026-01-31", rsi: 50.18 },
-  { date: "2026-01-30", rsi: 57.65 },
-  { date: "2026-01-29", rsi: 53.65 },
-  { date: "2026-01-28", rsi: 56.59 },
-  { date: "2026-01-27", rsi: 58.53 },
-  { date: "2026-01-24", rsi: 58.67 },
-  { date: "2026-01-23", rsi: 56.12 },
-  { date: "2026-01-22", rsi: 52.74 },
-  { date: "2026-01-21", rsi: 52.47 },
-  { date: "2026-01-17", rsi: 49.05 },
-  { date: "2026-01-16", rsi: 40.37 },
-  { date: "2026-01-14", rsi: 56.60 },
-  { date: "2026-01-13", rsi: 57.48 },
-  { date: "2026-01-10", rsi: 55.44 },
-  { date: "2026-01-09", rsi: 60.38 },
-  { date: "2026-01-08", rsi: 62.58 },
-  { date: "2026-01-07", rsi: 61.56 },
-  { date: "2026-01-06", rsi: 57.07 },
-  { date: "2026-01-03", rsi: 57.23 },
-  { date: "2026-01-02", rsi: 60.14 },
-  { date: "2025-12-31", rsi: 56.35 },
-];
-
 // Calculate dip analysis
-export function calculateDipSignals(priceHistory: typeof VOO_HISTORY) {
+export function calculateDipSignals(priceHistory: PricePoint[]) {
   if (priceHistory.length < 20) return [];
 
   const signals: Array<{
@@ -478,8 +308,12 @@ export function calculateDipSignals(priceHistory: typeof VOO_HISTORY) {
   return signals;
 }
 
-// Get current market signal
-export function getCurrentSignal(rsiData: typeof VOO_RSI, priceHistory: typeof VOO_HISTORY) {
+// Get current market signal for a specific fund
+export function getCurrentSignal(ticker: string) {
+  const rsiData = FUND_RSI[ticker] ?? [];
+  const priceHistory = FUND_HISTORIES[ticker] ?? [];
+  const fund = FUNDS.find((f) => f.ticker === ticker);
+
   const latestRsi = rsiData[0]?.rsi ?? 50;
   const signals = calculateDipSignals(priceHistory);
   const latestDip = signals[signals.length - 1];
@@ -513,20 +347,17 @@ export function getCurrentSignal(rsiData: typeof VOO_RSI, priceHistory: typeof V
 
   // 52-week range analysis
   const latest = priceHistory[priceHistory.length - 1];
-  if (latest) {
-    const fund = FUNDS.find((f) => f.ticker === "VOO");
-    if (fund) {
-      const range = fund.yearHigh - fund.yearLow;
-      const position = ((latest.close - fund.yearLow) / range) * 100;
-      if (position < 20) {
-        reasons.push(`Near 52-week low (${position.toFixed(0)}% of range)`);
-        if (overallSignal === "neutral") overallSignal = "buy";
-      } else if (position > 90) {
-        reasons.push(`Near 52-week high (${position.toFixed(0)}% of range)`);
-        if (overallSignal === "neutral") overallSignal = "caution";
-      } else {
-        reasons.push(`At ${position.toFixed(0)}% of 52-week range`);
-      }
+  if (latest && fund) {
+    const range = fund.yearHigh - fund.yearLow;
+    const position = ((latest.close - fund.yearLow) / range) * 100;
+    if (position < 20) {
+      reasons.push(`Near 52-week low (${position.toFixed(0)}% of range)`);
+      if (overallSignal === "neutral") overallSignal = "buy";
+    } else if (position > 90) {
+      reasons.push(`Near 52-week high (${position.toFixed(0)}% of range)`);
+      if (overallSignal === "neutral") overallSignal = "caution";
+    } else {
+      reasons.push(`At ${position.toFixed(0)}% of 52-week range`);
     }
   }
 
