@@ -48,6 +48,11 @@ import {
   getCurrentSignal,
   type FundInfo,
 } from "@/lib/fundData";
+import {
+  computeBollingerBands,
+  computeParabolicSar,
+  computeSupportResistance,
+} from "@/lib/technicalIndicators";
 import { useTheme } from "@/components/ThemeProvider";
 import { PerplexityAttribution } from "@/components/PerplexityAttribution";
 
@@ -67,13 +72,6 @@ function formatPct(n: number) {
   return `${sign}${n.toFixed(2)}%`;
 }
 
-function formatVolume(n: number) {
-  if (n === 0) return "N/A";
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
-}
-
 function formatExpenseRatio(er: number) {
   if (er === 0) return "0.00%";
   return `${er.toFixed(er < 0.01 ? 3 : 2)}%`;
@@ -81,6 +79,54 @@ function formatExpenseRatio(er: number) {
 
 function annualCostPer10k(er: number) {
   return formatPrice((er / 100) * 10000);
+}
+
+// RSI Sparkline for the fund table
+function RsiSparkline({ ticker }: { ticker: string }) {
+  const rsiData = FUND_RSI[ticker] ?? [];
+  if (rsiData.length === 0) {
+    return <span className="text-[10px] text-muted-foreground">N/A</span>;
+  }
+
+  const points = [...rsiData].reverse().slice(-20);
+  const latestRsi = rsiData[0]?.rsi ?? 50;
+
+  const w = 80;
+  const h = 28;
+  const padding = 2;
+
+  const xStep = (w - padding * 2) / (points.length - 1);
+  const yScale = (rsi: number) =>
+    padding + ((100 - rsi) / 100) * (h - padding * 2);
+
+  const pathD = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${padding + i * xStep} ${yScale(p.rsi)}`)
+    .join(" ");
+
+  const color =
+    latestRsi < 30
+      ? "hsl(160, 60%, 45%)"
+      : latestRsi > 70
+        ? "hsl(0, 72%, 51%)"
+        : latestRsi < 40
+          ? "hsl(200, 70%, 50%)"
+          : "hsl(262, 52%, 55%)";
+
+  return (
+    <div className="flex items-center gap-2">
+      <svg width={w} height={h} className="shrink-0" aria-label={`RSI sparkline for ${ticker}`}>
+        <rect x={padding} y={yScale(30)} width={w - padding * 2} height={yScale(0) - yScale(30)} fill="hsl(160, 60%, 45%)" opacity={0.08} rx={1} />
+        <rect x={padding} y={yScale(100)} width={w - padding * 2} height={yScale(70) - yScale(100)} fill="hsl(0, 72%, 51%)" opacity={0.08} rx={1} />
+        <line x1={padding} y1={yScale(30)} x2={w - padding} y2={yScale(30)} stroke="hsl(160, 60%, 45%)" strokeWidth={0.5} strokeDasharray="2 2" opacity={0.5} />
+        <line x1={padding} y1={yScale(70)} x2={w - padding} y2={yScale(70)} stroke="hsl(0, 72%, 51%)" strokeWidth={0.5} strokeDasharray="2 2" opacity={0.5} />
+        <path d={pathD} fill="none" stroke={color} strokeWidth={1.5} />
+        <circle cx={padding + (points.length - 1) * xStep} cy={yScale(points[points.length - 1].rsi)} r={2.5} fill={color} />
+      </svg>
+      <span className="text-xs font-semibold tabular-nums" style={{ color }}>
+        {latestRsi.toFixed(0)}
+      </span>
+    </div>
+  );
 }
 
 // Fund Selector Dropdown
@@ -158,7 +204,7 @@ function SignalBadge({ signal }: { signal: keyof typeof SIGNAL_COLORS }) {
   );
 }
 
-// Fund Row Component
+// Fund Row Component with RSI sparkline
 function FundRow({ fund, rank }: { fund: FundInfo; rank: number }) {
   const isPositive = fund.change >= 0;
   return (
@@ -194,10 +240,12 @@ function FundRow({ fund, rank }: { fund: FundInfo; rank: number }) {
           {formatPct(fund.changePercent)}
         </div>
       </td>
+      <td className="py-3 px-4">
+        <RsiSparkline ticker={fund.ticker} />
+      </td>
       <td className="py-3 px-4 text-sm text-muted-foreground tabular-nums">{formatPrice(fund.yearLow)}</td>
       <td className="py-3 px-4 text-sm text-muted-foreground tabular-nums">{formatPrice(fund.yearHigh)}</td>
       <td className="py-3 px-4">
-        {/* 52-week range bar */}
         <div className="w-24 relative">
           <div className="h-1.5 bg-muted rounded-full">
             <div
@@ -214,6 +262,44 @@ function FundRow({ fund, rank }: { fund: FundInfo; rank: number }) {
       <td className="py-3 px-4 text-xs text-muted-foreground">{fund.provider}</td>
       <td className="py-3 px-4 text-xs text-muted-foreground">{fund.minInvestment}</td>
     </tr>
+  );
+}
+
+// Indicator Toggle Checkbox
+function IndicatorToggle({
+  label,
+  color,
+  checked,
+  onChange,
+  testId,
+}: {
+  label: string;
+  color: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  testId: string;
+}) {
+  return (
+    <label
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium cursor-pointer transition-all select-none ${
+        checked
+          ? "bg-muted/80 text-foreground border border-border"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border border-transparent"
+      }`}
+      data-testid={testId}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      <span
+        className="w-2.5 h-2.5 rounded-sm shrink-0"
+        style={{ background: color, opacity: checked ? 1 : 0.4 }}
+      />
+      {label}
+    </label>
   );
 }
 
@@ -265,30 +351,68 @@ function ExpenseChart({ funds }: { funds: FundInfo[] }) {
   );
 }
 
-// Price Chart with SMA - now accepts selectedTicker
-function PriceChart({ selectedTicker }: { selectedTicker: string }) {
+// Price Chart with SMA and toggleable overlays
+function PriceChart({
+  selectedTicker,
+  overlays,
+}: {
+  selectedTicker: string;
+  overlays: { bollinger: boolean; psar: boolean; sr: boolean };
+}) {
   const priceHistory = FUND_HISTORIES[selectedTicker] ?? [];
   const signals = calculateDipSignals(priceHistory);
-  const chartData = priceHistory.slice(19).map((d, i) => ({
-    date: d.date,
-    price: d.close,
-    sma20: signals[i]?.sma20 ?? d.close,
-    signal: signals[i]?.signal,
-  }));
+
+  const bollingerBands = useMemo(
+    () => computeBollingerBands(priceHistory),
+    [selectedTicker, priceHistory]
+  );
+  const parabolicSar = useMemo(
+    () => computeParabolicSar(priceHistory),
+    [selectedTicker, priceHistory]
+  );
+  const supportResistance = useMemo(
+    () => computeSupportResistance(priceHistory),
+    [selectedTicker, priceHistory]
+  );
+
+  const chartData = useMemo(() => {
+    return priceHistory.slice(19).map((d, i) => {
+      const absoluteIdx = i + 19;
+      const bbIdx = absoluteIdx - 19;
+      const bb = bbIdx >= 0 && bbIdx < bollingerBands.length ? bollingerBands[bbIdx] : null;
+      const psar = absoluteIdx < parabolicSar.length ? parabolicSar[absoluteIdx] : null;
+
+      return {
+        date: d.date,
+        price: d.close,
+        sma20: signals[i]?.sma20 ?? d.close,
+        signal: signals[i]?.signal,
+        bbUpper: bb?.upper,
+        bbLower: bb?.lower,
+        psarUp: psar?.trend === "up" ? psar.sar : undefined,
+        psarDown: psar?.trend === "down" ? psar.sar : undefined,
+      };
+    });
+  }, [selectedTicker, priceHistory, bollingerBands, parabolicSar, signals]);
 
   const gradientId = `priceGrad-${selectedTicker}`;
+  const bbGradientId = `bbGrad-${selectedTicker}`;
 
   if (chartData.length === 0) {
     return <p className="text-sm text-muted-foreground py-8 text-center">No price data available for {selectedTicker}.</p>;
   }
 
   return (
-    <ResponsiveContainer key={selectedTicker} width="100%" height={320}>
+    <ResponsiveContainer key={selectedTicker} width="100%" height={360}>
       <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="hsl(210, 76%, 50%)" stopOpacity={0.3} />
             <stop offset="95%" stopColor="hsl(210, 76%, 50%)" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id={bbGradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="hsl(280, 60%, 55%)" stopOpacity={0.08} />
+            <stop offset="95%" stopColor="hsl(280, 60%, 55%)" stopOpacity={0.02} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
@@ -317,11 +441,69 @@ function PriceChart({ selectedTicker }: { selectedTicker: string }) {
             const d = new Date(v + "T00:00:00");
             return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
           }}
-          formatter={(value: number, name: string) => [
-            `$${value.toFixed(2)}`,
-            name === "price" ? `${selectedTicker} Price` : "20-Day SMA",
-          ]}
+          formatter={(value: number | undefined, name: string) => {
+            if (value === undefined || value === null) return [null, null];
+            const formatted = `$${value.toFixed(2)}`;
+            const labels: Record<string, string> = {
+              price: `${selectedTicker} Price`,
+              sma20: "20-Day SMA",
+              bbUpper: "BB Upper",
+              bbLower: "BB Lower",
+              psarUp: "PSAR (Bullish)",
+              psarDown: "PSAR (Bearish)",
+            };
+            return [formatted, labels[name] ?? name];
+          }}
         />
+
+        {/* Support / Resistance levels */}
+        {overlays.sr &&
+          supportResistance.map((level, idx) => (
+            <ReferenceLine
+              key={`sr-${idx}`}
+              y={level.price}
+              stroke={level.type === "support" ? "hsl(160, 60%, 45%)" : "hsl(0, 72%, 51%)"}
+              strokeDasharray={level.strength >= 2 ? "6 3" : "3 3"}
+              strokeWidth={level.strength >= 3 ? 1.5 : 1}
+              strokeOpacity={0.7}
+              label={{
+                value: `${level.type === "support" ? "S" : "R"} $${level.price}`,
+                position: level.type === "support" ? "insideBottomLeft" : "insideTopLeft",
+                fill: level.type === "support" ? "hsl(160, 60%, 45%)" : "hsl(0, 72%, 51%)",
+                fontSize: 9,
+              }}
+            />
+          ))}
+
+        {/* Bollinger Bands */}
+        {overlays.bollinger && (
+          <>
+            <Area
+              type="monotone"
+              dataKey="bbUpper"
+              stroke="hsl(280, 50%, 55%)"
+              strokeWidth={1}
+              strokeDasharray="4 2"
+              fill={`url(#${bbGradientId})`}
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+            <Area
+              type="monotone"
+              dataKey="bbLower"
+              stroke="hsl(280, 50%, 55%)"
+              strokeWidth={1}
+              strokeDasharray="4 2"
+              fill="transparent"
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          </>
+        )}
+
+        {/* Price area */}
         <Area
           type="monotone"
           dataKey="price"
@@ -330,6 +512,8 @@ function PriceChart({ selectedTicker }: { selectedTicker: string }) {
           fill={`url(#${gradientId})`}
           dot={false}
         />
+
+        {/* 20-Day SMA */}
         <Line
           type="monotone"
           dataKey="sma20"
@@ -338,12 +522,34 @@ function PriceChart({ selectedTicker }: { selectedTicker: string }) {
           strokeDasharray="5 3"
           dot={false}
         />
+
+        {/* Parabolic SAR dots */}
+        {overlays.psar && (
+          <>
+            <Line
+              type="monotone"
+              dataKey="psarUp"
+              stroke="none"
+              dot={{ r: 1.5, fill: "hsl(160, 60%, 50%)", strokeWidth: 0 }}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="psarDown"
+              stroke="none"
+              dot={{ r: 1.5, fill: "hsl(0, 72%, 55%)", strokeWidth: 0 }}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          </>
+        )}
       </ComposedChart>
     </ResponsiveContainer>
   );
 }
 
-// RSI Chart - now accepts selectedTicker
+// RSI Chart
 function RsiChart({ selectedTicker }: { selectedTicker: string }) {
   const rsiData = FUND_RSI[selectedTicker] ?? [];
   const data = [...rsiData].reverse();
@@ -393,7 +599,7 @@ function RsiChart({ selectedTicker }: { selectedTicker: string }) {
   );
 }
 
-// Dip Signal Timeline - now accepts selectedTicker
+// Dip Signal Timeline
 function DipTimeline({ selectedTicker }: { selectedTicker: string }) {
   const priceHistory = FUND_HISTORIES[selectedTicker] ?? [];
   const signals = calculateDipSignals(priceHistory);
@@ -486,6 +692,11 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState<"expenseRatio" | "price" | "changePercent">("expenseRatio");
   const [selectedTicker, setSelectedTicker] = useState<string>("VOO");
 
+  // Technical indicator overlay toggles
+  const [showBollinger, setShowBollinger] = useState(false);
+  const [showPsar, setShowPsar] = useState(false);
+  const [showSR, setShowSR] = useState(false);
+
   const sortedFunds = useMemo(() => {
     let filtered = FUNDS;
     if (categoryFilter !== "all") {
@@ -510,7 +721,6 @@ export default function Dashboard() {
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="IndexPulse Logo">
               <rect width="32" height="32" rx="8" fill="hsl(210, 76%, 42%)" />
               <path d="M8 22L12 12L18 18L24 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -624,20 +834,45 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">1-year daily close with 20-day SMA</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-xs">
-                    <span className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground mr-1">
                       <span className="w-3 h-0.5 bg-[hsl(210,76%,50%)] rounded" />
                       Price
                     </span>
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground mr-2">
                       <span className="w-3 h-0.5 bg-[hsl(43,74%,49%)] rounded border-dashed" style={{ borderBottom: "1.5px dashed hsl(43,74%,49%)", height: 0 }} />
-                      20-Day SMA
+                      SMA
                     </span>
+                    <div className="h-4 w-px bg-border mx-1" />
+                    <IndicatorToggle
+                      label="Bollinger"
+                      color="hsl(280, 50%, 55%)"
+                      checked={showBollinger}
+                      onChange={setShowBollinger}
+                      testId="toggle-bollinger"
+                    />
+                    <IndicatorToggle
+                      label="PSAR"
+                      color="hsl(160, 60%, 50%)"
+                      checked={showPsar}
+                      onChange={setShowPsar}
+                      testId="toggle-psar"
+                    />
+                    <IndicatorToggle
+                      label="S/R"
+                      color="hsl(0, 72%, 51%)"
+                      checked={showSR}
+                      onChange={setShowSR}
+                      testId="toggle-sr"
+                    />
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <PriceChart selectedTicker={selectedTicker} />
+                <PriceChart
+                  selectedTicker={selectedTicker}
+                  overlays={{ bollinger: showBollinger, psar: showPsar, sr: showSR }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -793,6 +1028,7 @@ export default function Dashboard() {
                     <th className="text-left py-2.5 px-4 text-[10px] font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground" onClick={() => setSortBy("changePercent")}>
                       Today {sortBy === "changePercent" ? "▼" : ""}
                     </th>
+                    <th className="text-left py-2.5 px-4 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">RSI</th>
                     <th className="text-left py-2.5 px-4 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">52W Low</th>
                     <th className="text-left py-2.5 px-4 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">52W High</th>
                     <th className="text-left py-2.5 px-4 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Range</th>
