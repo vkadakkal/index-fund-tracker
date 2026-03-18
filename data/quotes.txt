@@ -1,0 +1,83 @@
+## VOO Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| VOO | Vanguard S&P 500 ETF | 2026-03-18 15:32:54 UTC | 2026-03-18 15:32:58 UTC | open | 613.69 | -3.20 | -0.52 | 442.80 | 641.81 | 616.89 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## VTI Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| VTI | Vanguard Total Stock Market ETF | 2026-03-18 15:32:57 UTC | 2026-03-18 15:32:58 UTC | open | 328.88 | -1.69 | -0.51 | 236.42 | 344.42 | 330.57 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## IVV Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| IVV | iShares Core S&P 500 ETF | 2026-03-18 15:32:52 UTC | 2026-03-18 15:32:58 UTC | open | 668.50 | -3.49 | -0.52 | 484 | 700.97 | 671.99 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## SCHB Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SCHB | Schwab U.S. Broad Market ETF | 2026-03-18 15:31:21 UTC | 2026-03-18 15:32:58 UTC | open | 25.70 | -0.15 | -0.60 | 18.52 | 26.94 | 25.86 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## ITOT Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ITOT | iShares Core S&P Total U.S. Stock Market ETF | 2026-03-18 15:32:52 UTC | 2026-03-18 15:32:58 UTC | open | 145.44 | -0.74 | -0.51 | 105 | 152.71 | 146.19 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## SPTM Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SPTM | State Street SPDR Portfolio S&P 1500 Composite Stock Market ETF | 2026-03-18 15:32:43 UTC | 2026-03-18 15:32:58 UTC | open | 81.02 | -0.41 | -0.50 | 58.60 | 84.81 | 81.42 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## FXAIX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FXAIX | Fidelity 500 Index Fund | 2026-03-18 12:10:15 UTC | 2026-03-18 15:32:58 UTC | open | 233.87 | 0.59 | 0.25 | 173.01 | 242.52 | 233.28 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## SWPPX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SWPPX | Schwab S&P 500 Index Fund- Select Shares | 2026-03-18 12:10:25 UTC | 2026-03-18 15:32:58 UTC | open | 17.25 | 0.04 | 0.23 | 12.79 | 17.89 | 17.21 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## VFIAX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| VFIAX | Vanguard 500 Index Fund Admiral Shares | 2026-03-18 12:10:26 UTC | 2026-03-18 15:32:58 UTC | open | 621.56 | 1.57 | 0.25 | 459.80 | 644.58 | 619.99 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## VTSAX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| VTSAX | Vanguard Total Stock Market Index Fund Admiral Shares | 2026-03-18 12:10:27 UTC | 2026-03-18 15:32:58 UTC | open | 160.88 | 0.51 | 0.32 | 118.56 | 167.10 | 160.37 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## FNILX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FNILX | Fidelity ZERO Large Cap Index Fund | 2026-03-18 12:10:14 UTC | 2026-03-18 15:32:58 UTC | open | 23.93 | 0.06 | 0.25 | 17.73 | 24.86 | 23.87 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
+
+## FZROX Quote
+| symbol | name | timestamp | fetched_at | market_status | price | change | changesPercentage | yearLow | yearHigh | previousClose |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FZROX | Fidelity ZERO Total Market Index Fund | 2026-03-18 12:10:15 UTC | 2026-03-18 15:32:58 UTC | open | 23.29 | 0.07 | 0.30 | 17.18 | 24.19 | 23.22 |
+
+Data available in: `VOO_VTI_IVV_+9_more_quotes_378a67.csv` (row key column: symbol)
