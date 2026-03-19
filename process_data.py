@@ -18,22 +18,6 @@ MF_ETF_MAP = {
     "VTSAX": "VTI", "FZROX": "VTI",
 }
 
-# Quote data extracted from the API response
-QUOTES = {
-    "VOO": {"price": 613.69, "change": -3.20, "changesPercentage": -0.52, "yearLow": 442.80, "yearHigh": 641.81, "previousClose": 616.89},
-    "VTI": {"price": 328.88, "change": -1.69, "changesPercentage": -0.51, "yearLow": 236.42, "yearHigh": 344.42, "previousClose": 330.57},
-    "IVV": {"price": 668.50, "change": -3.49, "changesPercentage": -0.52, "yearLow": 484.00, "yearHigh": 700.97, "previousClose": 671.99},
-    "SCHB": {"price": 25.70, "change": -0.15, "changesPercentage": -0.60, "yearLow": 18.52, "yearHigh": 26.94, "previousClose": 25.86},
-    "ITOT": {"price": 145.44, "change": -0.74, "changesPercentage": -0.51, "yearLow": 105.00, "yearHigh": 152.71, "previousClose": 146.19},
-    "SPTM": {"price": 81.02, "change": -0.41, "changesPercentage": -0.50, "yearLow": 58.60, "yearHigh": 84.81, "previousClose": 81.42},
-    "FXAIX": {"price": 233.87, "change": 0.59, "changesPercentage": 0.25, "yearLow": 173.01, "yearHigh": 242.52, "previousClose": 233.28},
-    "SWPPX": {"price": 17.25, "change": 0.04, "changesPercentage": 0.23, "yearLow": 12.79, "yearHigh": 17.89, "previousClose": 17.21},
-    "VFIAX": {"price": 621.56, "change": 1.57, "changesPercentage": 0.25, "yearLow": 459.80, "yearHigh": 644.58, "previousClose": 619.99},
-    "VTSAX": {"price": 160.88, "change": 0.51, "changesPercentage": 0.32, "yearLow": 118.56, "yearHigh": 167.10, "previousClose": 160.37},
-    "FNILX": {"price": 23.93, "change": 0.06, "changesPercentage": 0.25, "yearLow": 17.73, "yearHigh": 24.86, "previousClose": 23.87},
-    "FZROX": {"price": 23.29, "change": 0.07, "changesPercentage": 0.30, "yearLow": 17.18, "yearHigh": 24.19, "previousClose": 23.22},
-}
-
 def sample_points(results, target=100):
     """Sample price data to approximately target points."""
     if len(results) <= target:
@@ -50,7 +34,7 @@ def sample_points(results, target=100):
     return sampled
 
 def compute_rsi(prices, period=14, last_n=50):
-    """Compute RSI from price close data."""
+    """Compute RSI from price close data. prices = list of {"date": ..., "c": ...}."""
     if len(prices) < period + 1:
         return []
     
@@ -77,57 +61,47 @@ def compute_rsi(prices, period=14, last_n=50):
             rs = avg_gain / avg_loss
             rsi = 100 - (100 / (1 + rs))
         
-        # The timestamp corresponds to the (i+1)th price point
-        t = prices[i + 1]["t"]
-        date_str = datetime.fromtimestamp(t / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+        date_str = prices[i + 1]["date"]
         rsi_values.append({"date": date_str, "rsi": round(rsi, 2)})
     
-    # Return last N points, reversed to match API format (newest first)
+    # Return last N points, reversed (newest first)
     return list(reversed(rsi_values[-last_n:]))
 
 def main():
+    # Load quotes
+    quotes_path = os.path.join(DATA_DIR, "quotes.json")
+    with open(quotes_path) as f:
+        QUOTES = json.load(f)
+    
     # 1. Load and process price data for all tickers
     fund_histories = {}
+    raw_prices = {}  # Keep full data for RSI computation
     
     for ticker in ETF_TICKERS:
         fpath = os.path.join(DATA_DIR, f"{ticker}_prices.json")
         with open(fpath) as f:
             data = json.load(f)
         results = data.get("results", [])
+        raw_prices[ticker] = results
         sampled = sample_points(results)
-        points = []
-        for r in sampled:
-            date_str = datetime.fromtimestamp(r["t"] / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
-            points.append({"date": date_str, "close": round(r["c"], 2)})
+        points = [{"date": r["date"], "close": round(r["c"], 2)} for r in sampled]
         fund_histories[ticker] = points
     
     # Map mutual fund histories from ETF equivalents
     for mf, etf in MF_ETF_MAP.items():
         fund_histories[mf] = fund_histories[etf]
     
-    # 2. Load RSI data for ETFs
+    # 2. Compute RSI for all tickers from price data
     fund_rsi = {}
     
     for ticker in ETF_TICKERS:
-        fpath = os.path.join(DATA_DIR, f"{ticker}_rsi.json")
-        with open(fpath) as f:
-            data = json.load(f)
-        values = data.get("results", {}).get("values", [])
-        rsi_points = []
-        for v in values:
-            date_str = datetime.fromtimestamp(v["timestamp"] / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
-            rsi_points.append({"date": date_str, "rsi": round(v["value"], 2)})
-        fund_rsi[ticker] = rsi_points
+        fund_rsi[ticker] = compute_rsi(raw_prices[ticker], period=14, last_n=50)
     
-    # 3. Compute RSI for mutual funds from ETF price data
+    # Mutual funds use their ETF equivalent's price data for RSI
     for mf, etf in MF_ETF_MAP.items():
-        fpath = os.path.join(DATA_DIR, f"{etf}_prices.json")
-        with open(fpath) as f:
-            data = json.load(f)
-        results = data.get("results", [])
-        fund_rsi[mf] = compute_rsi(results, period=14, last_n=50)
+        fund_rsi[mf] = compute_rsi(raw_prices[etf], period=14, last_n=50)
     
-    # 4. Generate fundHistories.ts
+    # 3. Generate fundHistories.ts
     ts_lines = []
     ts_lines.append('export interface PricePoint { date: string; close: number; }')
     ts_lines.append('export interface RsiPoint { date: string; rsi: number; }')
@@ -156,22 +130,14 @@ def main():
         f.write('\n'.join(ts_lines))
     print(f"Written {histories_path}")
     
-    # 5. Update fundData.ts with fresh quote data
+    # 4. Update fundData.ts with fresh quote data
     funddata_path = os.path.join(CLIENT_LIB, "fundData.ts")
     with open(funddata_path, 'r') as f:
         content = f.read()
     
-    # Update each fund's price, change, changePercent, yearLow, yearHigh
+    import re
     for ticker, q in QUOTES.items():
-        # Update price
-        import re
-        
-        # Find the fund entry and update fields
-        # Pattern: { ticker: "VOO", ... price: NUMBER, ...}
-        # We'll update price, change, changePercent, yearLow, yearHigh
-        
-        # Match the fund block for this ticker
-        pattern = rf'(ticker:\s*"{ticker}"[^}}]*?price:\s*)[\d.]+' 
+        pattern = rf'(ticker:\s*"{ticker}"[^}}]*?price:\s*)[\d.]+'
         content = re.sub(pattern, rf'\g<1>{q["price"]}', content)
         
         pattern = rf'(ticker:\s*"{ticker}"[^}}]*?change:\s*)-?[\d.]+'

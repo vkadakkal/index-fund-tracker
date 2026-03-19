@@ -1,0 +1,98 @@
+{
+  "VOO": {
+    "price": 604.16,
+    "change": -4.22,
+    "changesPercentage": -0.69,
+    "yearLow": 442.8,
+    "yearHigh": 641.81,
+    "previousClose": 608.38
+  },
+  "VTI": {
+    "price": 323.79,
+    "change": -2.23,
+    "changesPercentage": -0.68,
+    "yearLow": 236.42,
+    "yearHigh": 344.42,
+    "previousClose": 326.02
+  },
+  "IVV": {
+    "price": 658.1,
+    "change": -4.75,
+    "changesPercentage": -0.72,
+    "yearLow": 484.0,
+    "yearHigh": 700.97,
+    "previousClose": 662.85
+  },
+  "SCHB": {
+    "price": 25.32,
+    "change": -0.17,
+    "changesPercentage": -0.65,
+    "yearLow": 18.52,
+    "yearHigh": 26.94,
+    "previousClose": 25.49
+  },
+  "ITOT": {
+    "price": 143.21,
+    "change": -1.01,
+    "changesPercentage": -0.7,
+    "yearLow": 105.0,
+    "yearHigh": 152.71,
+    "previousClose": 144.22
+  },
+  "SPTM": {
+    "price": 79.75,
+    "change": -0.56,
+    "changesPercentage": -0.69,
+    "yearLow": 58.6,
+    "yearHigh": 84.81,
+    "previousClose": 80.31
+  },
+  "FXAIX": {
+    "price": 230.68,
+    "change": -3.19,
+    "changesPercentage": -1.36,
+    "yearLow": 173.01,
+    "yearHigh": 242.52,
+    "previousClose": 233.87
+  },
+  "SWPPX": {
+    "price": 17.02,
+    "change": -0.23,
+    "changesPercentage": -1.33,
+    "yearLow": 12.79,
+    "yearHigh": 17.89,
+    "previousClose": 17.25
+  },
+  "VFIAX": {
+    "price": 613.11,
+    "change": -8.45,
+    "changesPercentage": -1.36,
+    "yearLow": 459.8,
+    "yearHigh": 644.58,
+    "previousClose": 621.56
+  },
+  "VTSAX": {
+    "price": 158.71,
+    "change": -2.17,
+    "changesPercentage": -1.35,
+    "yearLow": 118.56,
+    "yearHigh": 167.1,
+    "previousClose": 160.88
+  },
+  "FNILX": {
+    "price": 23.6,
+    "change": -0.33,
+    "changesPercentage": -1.38,
+    "yearLow": 17.73,
+    "yearHigh": 24.86,
+    "previousClose": 23.93
+  },
+  "FZROX": {
+    "price": 22.98,
+    "change": -0.31,
+    "changesPercentage": -1.33,
+    "yearLow": 17.18,
+    "yearHigh": 24.19,
+    "previousClose": 23.29
+  }
+}
