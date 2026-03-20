@@ -1,98 +1,98 @@
 {
   "VOO": {
-    "price": 604.16,
-    "change": -4.22,
-    "changesPercentage": -0.69,
+    "price": 601.92,
+    "change": -4.83,
+    "changesPercentage": -0.8,
     "yearLow": 442.8,
     "yearHigh": 641.81,
-    "previousClose": 608.38
+    "previousClose": 606.75
   },
   "VTI": {
-    "price": 323.79,
-    "change": -2.23,
-    "changesPercentage": -0.68,
+    "price": 322.67,
+    "change": -2.77,
+    "changesPercentage": -0.85,
     "yearLow": 236.42,
     "yearHigh": 344.42,
-    "previousClose": 326.02
+    "previousClose": 325.44
   },
   "IVV": {
-    "price": 658.1,
-    "change": -4.75,
-    "changesPercentage": -0.72,
+    "price": 655.66,
+    "change": -5.27,
+    "changesPercentage": -0.8,
     "yearLow": 484.0,
     "yearHigh": 700.97,
-    "previousClose": 662.85
+    "previousClose": 660.93
   },
   "SCHB": {
-    "price": 25.32,
-    "change": -0.17,
-    "changesPercentage": -0.65,
+    "price": 25.23,
+    "change": -0.2,
+    "changesPercentage": -0.81,
     "yearLow": 18.52,
     "yearHigh": 26.94,
-    "previousClose": 25.49
+    "previousClose": 25.43
   },
   "ITOT": {
-    "price": 143.21,
-    "change": -1.01,
-    "changesPercentage": -0.7,
+    "price": 142.71,
+    "change": -1.22,
+    "changesPercentage": -0.85,
     "yearLow": 105.0,
     "yearHigh": 152.71,
-    "previousClose": 144.22
+    "previousClose": 143.93
   },
   "SPTM": {
-    "price": 79.75,
-    "change": -0.56,
-    "changesPercentage": -0.69,
+    "price": 79.47,
+    "change": -0.68,
+    "changesPercentage": -0.84,
     "yearLow": 58.6,
     "yearHigh": 84.81,
-    "previousClose": 80.31
+    "previousClose": 80.14
   },
   "FXAIX": {
-    "price": 230.68,
-    "change": -3.19,
-    "changesPercentage": -1.36,
+    "price": 230.06,
+    "change": -0.62,
+    "changesPercentage": -0.27,
     "yearLow": 173.01,
     "yearHigh": 242.52,
-    "previousClose": 233.87
+    "previousClose": 230.68
   },
   "SWPPX": {
-    "price": 17.02,
-    "change": -0.23,
-    "changesPercentage": -1.33,
+    "price": 16.97,
+    "change": -0.05,
+    "changesPercentage": -0.29,
     "yearLow": 12.79,
     "yearHigh": 17.89,
-    "previousClose": 17.25
+    "previousClose": 17.02
   },
   "VFIAX": {
-    "price": 613.11,
-    "change": -8.45,
-    "changesPercentage": -1.36,
+    "price": 611.46,
+    "change": -1.65,
+    "changesPercentage": -0.27,
     "yearLow": 459.8,
     "yearHigh": 644.58,
-    "previousClose": 621.56
+    "previousClose": 613.11
   },
   "VTSAX": {
-    "price": 158.71,
-    "change": -2.17,
-    "changesPercentage": -1.35,
+    "price": 158.4,
+    "change": -0.31,
+    "changesPercentage": -0.2,
     "yearLow": 118.56,
     "yearHigh": 167.1,
-    "previousClose": 160.88
+    "previousClose": 158.71
   },
   "FNILX": {
-    "price": 23.6,
-    "change": -0.33,
-    "changesPercentage": -1.38,
+    "price": 23.54,
+    "change": -0.06,
+    "changesPercentage": -0.25,
     "yearLow": 17.73,
     "yearHigh": 24.86,
-    "previousClose": 23.93
+    "previousClose": 23.6
   },
   "FZROX": {
-    "price": 22.98,
-    "change": -0.31,
-    "changesPercentage": -1.33,
+    "price": 22.93,
+    "change": -0.05,
+    "changesPercentage": -0.22,
     "yearLow": 17.18,
     "yearHigh": 24.19,
-    "previousClose": 23.29
+    "previousClose": 22.98
   }
 }
